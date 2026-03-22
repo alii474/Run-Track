@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RunTrack - GPS Run Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- GPS Status Bar -->
+        <header class="status-bar">
+            <div class="gps-status">
+                <div class="gps-indicator" id="gps-indicator">
+                    <div class="gps-dot"></div>
+                </div>
+                <span id="gps-status-text">Searching GPS...</span>
+            </div>
+            <div class="app-title">RunTrack</div>
+        </header>
+
+        <main class="main-content">
+            <!-- Timer Display -->
+            <section class="timer-section">
+                <div class="timer-display" id="timer-display">00:00:00</div>
+            </section>
+
+            <!-- Stats Grid -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Distance</div>
+                        <div class="stat-value" id="distance-value">0.00</div>
+                        <div class="stat-unit">km</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Pace</div>
+                        <div class="stat-value" id="pace-value">--:--</div>
+                        <div class="stat-unit">min/km</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Speed</div>
+                        <div class="stat-value" id="speed-value">0.0</div>
+                        <div class="stat-unit">km/h</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">GPS Points</div>
+                        <div class="stat-value" id="gps-points-value">0</div>
+                        <div class="stat-unit">points</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Control Buttons -->
+            <section class="controls-section">
+                <button class="btn-start" id="start-stop-btn">START</button>
+                <button class="btn-save" id="save-sync-btn" disabled>Save + Sync to Google Fit</button>
+            </section>
+
+            <!-- Recent Runs History -->
+            <section class="history-section">
+                <h2>Recent Runs</h2>
+                <div class="runs-list" id="runs-list">
+                    <div class="no-runs">No runs recorded yet</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="googlefit.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
