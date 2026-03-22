@@ -84,6 +84,7 @@ class RunTrack {
         this.totalDistance = 0;
         this.gpsPoints = 0;
         this.lastPosition = null;
+        this.gpsRetryCount = 0; // Reset retry count
         
         // Update UI
         this.elements.startStopBtn.textContent = 'STOP';
@@ -97,7 +98,8 @@ class RunTrack {
         this.startGPS();
         
         // Update status
-        this.updateGPSStatus('connected');
+        this.updateGPSStatus('searching');
+        this.showToast('GPS connecting...', 'info');
     }
     
     // 3. stopRun() - clears timer interval, clears GPS watch, enables save button
@@ -135,7 +137,7 @@ class RunTrack {
             (error) => this.handleGPSError(error),
             {
                 enableHighAccuracy: true,
-                timeout: 5000,
+                timeout: 10000, // Increased from 5000ms to 10000ms
                 maximumAge: 0
             }
         );
@@ -155,8 +157,19 @@ class RunTrack {
                 this.simulateGPS();
                 break;
             case error.TIMEOUT:
-                this.showToast('GPS timeout. Using simulation mode.', 'warning');
-                this.simulateGPS();
+                // Try one more time before switching to simulation
+                if (!this.gpsRetryCount) {
+                    this.gpsRetryCount = 0;
+                }
+                
+                if (this.gpsRetryCount < 2) {
+                    this.gpsRetryCount++;
+                    this.showToast('GPS taking time to connect... Retrying...', 'info');
+                    setTimeout(() => this.startGPS(), 2000);
+                } else {
+                    this.showToast('GPS timeout after retries. Using simulation mode.', 'warning');
+                    this.simulateGPS();
+                }
                 break;
             default:
                 this.showToast('GPS error. Using simulation mode.', 'warning');
