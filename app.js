@@ -18,6 +18,8 @@ class RunTrack {
         this.gpsAccuracy = null;
         this.isOnline = navigator.onLine;
         this.pendingSyncRuns = [];
+        this.lastMovementTime = null;
+        this.isActuallyMoving = false;
         
         // DOM elements
         this.elements = {
@@ -85,6 +87,8 @@ class RunTrack {
         this.gpsPoints = 0;
         this.lastPosition = null;
         this.gpsRetryCount = 0; // Reset retry count
+        this.lastMovementTime = null;
+        this.isActuallyMoving = false;
         
         // Update UI
         this.elements.startStopBtn.textContent = 'STOP';
@@ -99,7 +103,7 @@ class RunTrack {
         
         // Update status
         this.updateGPSStatus('searching');
-        this.showToast('GPS connecting...', 'info');
+        this.showToast('GPS connecting... Start walking to track distance!', 'info');
     }
     
     // 3. stopRun() - clears timer interval, clears GPS watch, enables save button
@@ -199,10 +203,26 @@ class RunTrack {
                 currentPosition.lng
             );
             
-            // Only add distance if movement is significant (minimum 2 meters)
-            if (distance >= 0.002) { // 0.002 km = 2 meters
+            // Check if actually moving (minimum 3 meters with reasonable speed)
+            const currentSpeed = this.elapsed > 0 ? (distance / (2/3600)) : 0; // Assuming 2-second interval
+            const isCurrentlyMoving = distance >= 0.003 && currentSpeed <= 20; // 3 meters and max 20 km/h
+            
+            if (isCurrentlyMoving) {
+                // Actually moving - add distance
                 this.totalDistance += distance;
+                this.lastMovementTime = Date.now();
+                this.isActuallyMoving = true;
+            } else {
+                // Check if stopped moving for more than 5 seconds
+                if (this.isActuallyMoving && this.lastMovementTime && (Date.now() - this.lastMovementTime) > 5000) {
+                    this.isActuallyMoving = false;
+                    this.showToast('Movement stopped', 'info');
+                }
             }
+        } else {
+            // First GPS point - start tracking
+            this.lastMovementTime = Date.now();
+            this.isActuallyMoving = false;
         }
         
         this.lastPosition = currentPosition;
@@ -463,11 +483,16 @@ class RunTrack {
         switch (status) {
             case 'connected':
                 dot.classList.remove('searching');
+                let statusText = 'GPS Connected';
                 if (this.gpsAccuracy) {
-                    this.elements.gpsStatusText.textContent = `GPS Connected (${this.gpsAccuracy.toFixed(0)}m)`;
-                } else {
-                    this.elements.gpsStatusText.textContent = 'GPS Connected';
+                    statusText += ` (${this.gpsAccuracy.toFixed(0)}m)`;
                 }
+                if (this.isActuallyMoving) {
+                    statusText += ' - Moving';
+                } else {
+                    statusText += ' - Stationary';
+                }
+                this.elements.gpsStatusText.textContent = statusText;
                 break;
             case 'searching':
                 dot.classList.add('searching');

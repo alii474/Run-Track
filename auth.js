@@ -1,8 +1,8 @@
 // Google OAuth 2.0 Authentication for RunTrack using Google Identity Services
 
-// Configuration
-const CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID";
-const SCOPES = "https://www.googleapis.com/auth/fitness.activity.write";
+// Google OAuth 2.0 Configuration
+const CLIENT_ID = '15357168879-t8hrv5a801rbdln2pg2a03ted2dd65o9.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/fitness.activity.write';
 
 // Module-level variables
 let tokenClient = null;
